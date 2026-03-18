@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setter Training Canvas | Dropship Academy X</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #0a1f1f;
+            color: #e8f0f0;
+            line-height: 1.7;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* LOGIN GATE */
+        .login-gate {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: #0a1f1f;
+            background-image: linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; padding: 20px;
+        }
+        .login-gate.hidden { display: none; }
+        .login-card {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 212, 170, 0.03) 100%);
+            border: 2px solid rgba(0, 212, 170, 0.3);
+            border-radius: 24px; padding: 48px; max-width: 440px; width: 100%; text-align: center;
+        }
+        .login-icon { font-size: 64px; margin-bottom: 24px; }
+        .login-card h1 { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+        .login-card .subtitle { font-size: 16px; color: #00d4aa; margin-bottom: 32px; }
+        .login-card p { font-size: 15px; color: rgba(255, 255, 255, 0.7); margin-bottom: 32px; line-height: 1.7; }
+        .input-group { margin-bottom: 16px; }
+        .input-group input {
+            width: 100%; padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 170, 0.2);
+            border-radius: 12px; color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif; font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus { outline: none; border-color: #00d4aa; background: rgba(0, 212, 170, 0.05); }
+        .input-group input::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .login-btn {
+            width: 100%; padding: 16px 32px; background: #00d4aa; color: #0a1f1f;
+            border: none; border-radius: 12px; font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; margin-top: 8px;
+        }
+        .login-btn:hover { background: #00e6b8; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3); }
+        .login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .login-error { color: #ff6b6b; font-size: 14px; margin-top: 12px; display: none; }
+
+        /* MAIN CONTENT */
+        .main-content { display: none; }
+        .main-content.visible { display: block; }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+
+        /* PROGRESS BAR */
+        .progress-bar-container {
+            position: sticky; top: 0;
+            background: linear-gradient(180deg, #0a1f1f 0%, rgba(10, 31, 31, 0.95) 100%);
+            padding: 16px 20px; z-index: 100;
+            border-bottom: 1px solid rgba(0, 212, 170, 0.2);
+            margin: 0 -20px 32px;
+        }
+        .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 12px; }
+        .user-welcome { display: flex; align-items: center; gap: 12px; }
+        .user-avatar {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, #00d4aa 0%, #00a080 100%);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; color: #0a1f1f;
+        }
+        .user-name { font-weight: 600; color: #ffffff; }
+        .progress-stats { display: flex; align-items: center; gap: 16px; }
+        .progress-percent { font-size: 24px; font-weight: 700; color: #00d4aa; }
+        .progress-text { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7); padding: 8px 16px; border-radius: 8px;
+            font-size: 13px; cursor: pointer; transition: all 0.3s ease; font-family: 'Space Grotesk', sans-serif;
+        }
+        .logout-btn:hover { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+        .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00d4aa 0%, #00e6b8 100%); border-radius: 4px; transition: width 0.5s ease; width: 0%; }
+        .sync-status { font-size: 11px; color: rgba(255, 255, 255, 0.4); text-align: right; margin-top: 8px; }
+        .sync-status.syncing { color: #ffcc00; }
+        .sync-status.synced { color: #00d4aa; }
+
+        /* HERO */
+        .hero { text-align: center; padding: 40px 20px 60px; margin-bottom: 40px; }
+        .hero-icon { font-size: 64px; margin-bottom: 24px; display: block; }
+        .hero h1 { font-size: clamp(32px, 6vw, 48px); font-weight: 700; color: #ffffff; margin-bottom: 16px; letter-spacing: -1px; }
+        .hero-subtitle { font-size: 18px; color: #00d4aa; font-weight: 500; }
+
+        /* CHECKBOX */
+        .custom-checkbox {
+            width: 24px; height: 24px; border: 2px solid rgba(0, 212, 170, 0.4);
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; flex-shrink: 0; background: rgba(0, 212, 170, 0.05); cursor: pointer;
+        }
+        .custom-checkbox:hover { border-color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
+        .custom-checkbox.checked { background: #00d4aa; border-color: #00d4aa; }
+        .custom-checkbox.checked::after { content: "✓"; color: #0a1f1f; font-weight: 700; font-size: 14px; }
+
+        /* ACHIEVEMENT */
+        .achievement-badge {
+            display: none; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0.05) 100%);
+            border: 1px solid rgba(255, 204, 0, 0.4); padding: 8px 16px; border-radius: 20px;
+            font-size: 13px; font-weight: 600; color: #ffcc00; margin-top: 16px;
+            animation: achievementPop 0.5s ease;
+        }
+        .achievement-badge.visible { display: inline-flex; }
+        @keyframes achievementPop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+
+        /* SLACK REMINDER */
+        .slack-reminder {
+            background: linear-gradient(135deg, rgba(74, 21, 75, 0.3) 0%, rgba(74, 21, 75, 0.1) 100%);
+            border: 2px solid rgba(225, 118, 230, 0.4); border-radius: 12px;
+            padding: 20px 24px; margin-top: 24px; display: flex; align-items: flex-start; gap: 16px;
+        }
+        .slack-reminder .slack-icon { font-size: 28px; flex-shrink: 0; }
+        .slack-reminder h4 { font-size: 15px; font-weight: 700; color: #e176e6; margin-bottom: 8px; }
+        .slack-reminder p { font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; }
+        .slack-reminder strong { color: #ffffff; }
+        .slack-reminder code { background: rgba(225, 118, 230, 0.2); padding: 2px 8px; border-radius: 4px; font-family: monospace; color: #e176e6; }
+
+        /* CARDS */
+        .onboarding-banner {
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.15) 0%, rgba(255, 204, 0, 0.05) 100%);
+            border: 2px solid rgba(255, 204, 0, 0.4); border-radius: 16px; padding: 24px 32px; margin-bottom: 48px;
+        }
+        .onboarding-content { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .onboarding-banner .icon { font-size: 32px; }
+        .onboarding-banner .text { flex: 1; min-width: 200px; }
+        .onboarding-banner h3 { font-size: 16px; font-weight: 700; color: #ffcc00; margin-bottom: 4px; }
+        .onboarding-banner p { font-size: 14px; color: rgba(255, 255, 255, 0.7); }
+        .onboarding-banner a.watch-link {
+            display: inline-flex; align-items: center; gap: 8px; background: #ffcc00;
+            color: #0a1f1f; text-decoration: none; padding: 12px 24px; border-radius: 8px;
+            font-weight: 600; font-size: 14px; transition: all 0.3s ease;
+        }
+        .onboarding-banner a.watch-link:hover { background: #e6b800; transform: translateY(-2px); }
+        .onboarding-checkbox { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 204, 0, 0.2); }
+        .onboarding-checkbox span { font-size: 14px; color: rgba(255, 255, 255, 0.8); }
+
+        .goal-card {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 212, 170, 0.03) 100%);
+            border: 2px solid rgba(0, 212, 170, 0.3); border-radius: 20px; padding: 40px; margin-bottom: 48px;
+        }
+        .goal-card h2 { font-size: 24px; font-weight: 700; color: #00d4aa; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+        .goal-intro { font-size: 17px; color: rgba(255, 255, 255, 0.9); margin-bottom: 24px; line-height: 1.8; }
+        .expectations-list { list-style: none; margin-bottom: 24px; }
+        .expectations-list li { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 15px; color: rgba(255, 255, 255, 0.85); }
+        .expectations-list li:last-child { border-bottom: none; }
+        .expectations-list li::before { content: "→"; color: #00d4aa; font-weight: 700; flex-shrink: 0; }
+
+        /* MODULES */
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; margin-top: 48px; }
+        .section-icon { font-size: 28px; }
+        .section-title { font-size: 24px; font-weight: 700; color: #ffffff; }
+        .module-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 28px; margin-bottom: 24px;
+        }
+        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .module-badge { background: rgba(0, 212, 170, 0.15); color: #00d4aa; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .module-progress { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+        .module-title { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 20px; }
+        .video-list { list-style: none; }
+        .video-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .video-item:last-child { margin-bottom: 0; }
+        .video-number { width: 28px; height: 28px; background: rgba(0, 212, 170, 0.15); color: #00d4aa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+        .video-title { flex: 1; font-size: 15px; color: #ffffff; min-width: 150px; }
+        .video-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .video-link { font-size: 13px; color: #00d4aa; text-decoration: none; padding: 6px 12px; background: rgba(0, 212, 170, 0.1); border-radius: 6px; transition: all 0.3s ease; }
+        .video-link:hover { background: rgba(0, 212, 170, 0.2); }
+
+        /* LIBRARY */
+        .library-header { text-align: center; margin: 64px 0 32px; }
+        .library-header h2 { font-size: 28px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+        .library-header p { font-size: 15px; color: rgba(255, 255, 255, 0.6); }
+        .library-intro { font-size: 16px; color: rgba(255, 255, 255, 0.7); text-align: center; margin-bottom: 40px; line-height: 1.8; }
+
+        /* CATEGORIES */
+        .category-section { margin-bottom: 48px; }
+        .category-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 16px 20px; background: rgba(255, 255, 255, 0.03); border-radius: 12px; }
+        .category-icon { font-size: 24px; }
+        .category-title { flex: 1; font-size: 18px; font-weight: 700; color: #ffffff; }
+        .category-count { font-size: 13px; color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); padding: 4px 12px; border-radius: 12px; }
+
+        /* TOGGLE CARDS */
+        .toggle-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+        .toggle-header { display: flex; align-items: center; gap: 16px; padding: 20px; cursor: pointer; transition: background 0.3s ease; }
+        .toggle-header:hover { background: rgba(255, 255, 255, 0.02); }
+        .toggle-checkbox { flex-shrink: 0; }
+        .toggle-number { width: 28px; height: 28px; background: rgba(0, 212, 170, 0.15); color: #00d4aa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+        .toggle-info { flex: 1; min-width: 0; }
+        .toggle-title { font-size: 16px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .toggle-subtitle { font-size: 13px; color: rgba(255, 255, 255, 0.5); margin-top: 4px; }
+        .read-time { font-size: 11px; color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); padding: 2px 8px; border-radius: 4px; font-weight: 400; }
+        .toggle-icon { color: #00d4aa; font-size: 12px; transition: transform 0.3s ease; flex-shrink: 0; }
+        .toggle-card.open .toggle-icon { transform: rotate(180deg); }
+        .toggle-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .toggle-card.open .toggle-content { max-height: 2000px; }
+        .content-body { padding: 0 20px 24px 68px; }
+        .content-body p { font-size: 15px; color: rgba(255, 255, 255, 0.85); line-height: 1.8; margin-bottom: 16px; }
+        .content-body p:last-child { margin-bottom: 0; }
+        .content-body strong { color: #00d4aa; }
+        .content-body ul { margin: 16px 0; padding-left: 20px; }
+        .content-body li { font-size: 15px; color: rgba(255, 255, 255, 0.85); margin-bottom: 8px; line-height: 1.7; }
+        .action-box { background: rgba(0, 212, 170, 0.1); border: 1px solid rgba(0, 212, 170, 0.3); border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .action-box h4 { font-size: 14px; font-weight: 700; color: #00d4aa; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .action-box p { font-size: 14px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+        /* EXAMPLES & TOOLS */
+        .examples-section { margin: 48px 0; }
+        .examples-section h3 { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .examples-grid { display: grid; gap: 16px; }
+        .example-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px; }
+        .example-card h4 { font-size: 15px; font-weight: 600; color: #ffffff; margin-bottom: 8px; }
+        .example-card p { font-size: 13px; color: rgba(255, 255, 255, 0.6); margin-bottom: 12px; }
+        .example-card a { font-size: 13px; color: #00d4aa; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .example-card a:hover { text-decoration: underline; }
+
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px; }
+        .tool-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s ease; text-decoration: none; }
+        .tool-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(0, 212, 170, 0.3); transform: translateY(-2px); }
+        .tool-card .tool-icon { font-size: 32px; margin-bottom: 12px; }
+        .tool-card h4 { font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
+        .tool-card p { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+
+        /* BOOTCAMP */
+        .bootcamp-banner {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(138, 43, 226, 0.05) 100%);
+            border: 2px solid rgba(138, 43, 226, 0.4); border-radius: 16px; padding: 32px; margin-top: 48px; text-align: center;
+        }
+        .bootcamp-banner h3 { font-size: 20px; font-weight: 700; color: #a855f7; margin-bottom: 8px; }
+        .bootcamp-banner p { font-size: 15px; color: rgba(255, 255, 255, 0.7); margin-bottom: 20px; }
+        .bootcamp-banner a {
+            display: inline-flex; align-items: center; gap: 8px; background: #a855f7; color: #ffffff;
+            text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 15px; transition: all 0.3s ease;
+        }
+        .bootcamp-banner a:hover { background: #9333ea; transform: translateY(-2px); }
+
+        @media (max-width: 600px) {
+            .content-body { padding-left: 20px; }
+            .toggle-header { gap: 12px; }
+            .progress-header { flex-direction: column; align-items: flex-start; }
+            .progress-stats { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN GATE -->
+    <div class="login-gate" id="loginGate">
+        <div class="login-card">
+            <div class="login-icon">🏋️</div>
+            <h1>Setter Training Canvas</h1>
+            <div class="subtitle">Dropship Academy X</div>
+            <p>Enter your name to track your progress through the training. Your progress will be saved automatically.</p>
+            <div class="input-group">
+                <input type="text" id="firstName" placeholder="First name" autocomplete="given-name">
+            </div>
+            <div class="input-group">
+                <input type="text" id="lastName" placeholder="Last name" autocomplete="family-name">
+            </div>
+            <button class="login-btn" id="loginBtn" onclick="handleLogin()">Start Training →</button>
+            <div class="login-error" id="loginError">Please enter your first and last name</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <!-- PROGRESS BAR -->
+            <div class="progress-bar-container">
+                <div class="progress-header">
+                    <div class="user-welcome">
+                        <div class="user-avatar" id="userAvatar">JD</div>
+                        <span class="user-name" id="userName">John Doe</span>
+                    </div>
+                    <div class="progress-stats">
+                        <span class="progress-percent" id="progressPercent">0%</span>
+                        <span class="progress-text"><span id="completedCount">0</span>/<span id="totalCount">21</span> completed</span>
+                    </div>
+                    <button class="logout-btn" onclick="switchUser()">Switch User</button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="sync-status" id="syncStatus"></div>
+            </div>
+
+            <!-- HERO -->
+            <div class="hero">
+                <span class="hero-icon">🏋️</span>
+                <h1>Setter Training Canvas</h1>
+                <p class="hero-subtitle">Your Complete Training Hub</p>
+            </div>
+
+            <!-- ONBOARDING BANNER -->
+            <div class="onboarding-banner">
+                <div class="onboarding-content">
+                    <span class="icon">📞</span>
+                    <div class="text">
+                        <h3>Step 1: Watch the Onboarding Call</h3>
+                        <p>Start at 15:00 for the setting training section</p>
+                    </div>
+                    <a href="https://fathom.video/share/je-odFs5r2cH3UoWntEeEJczKHVXZuUL" target="_blank" class="watch-link">▶️ Watch Recording</a>
+                </div>
+                <div class="onboarding-checkbox">
+                    <div class="custom-checkbox" onclick="toggleCheckbox('onboarding')" id="checkbox-onboarding"></div>
+                    <span>I've watched the onboarding call</span>
+                </div>
+            </div>
+
+            <!-- GOAL CARD -->
+            <div class="goal-card">
+                <h2>🎯 Goal & Expectations</h2>
+                <p class="goal-intro">This training will transform you into a high-performing setter. Complete every module, implement immediately, and track your progress.</p>
+                <ul class="expectations-list">
+                    <li>Complete all video modules and lessons in order</li>
+                    <li>Mark each item complete only after you've truly absorbed it</li>
+                    <li>Post your takeaways in #setter-training after each module</li>
+                    <li>Apply what you learn in real conversations the same day</li>
+                    <li>Submit your best and worst convos weekly for feedback</li>
+                </ul>
+            </div>
+
+            <!-- MODULE SECTION -->
+            <div class="section-header">
+                <span class="section-icon">🎬</span>
+                <h2 class="section-title">Video Modules</h2>
+            </div>
+
+            <!-- Module 1 -->
+            <div class="module-card">
+                <div class="module-header">
+                    <span class="module-badge">Module 1</span>
+                    <span class="module-progress"><span id="module1-progress">0</span>/2 videos</span>
+                </div>
+                <h3 class="module-title">Fundamentals</h3>
+                <ul class="video-list">
+                    <li class="video-item" id="video-m1-1">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m1-v1')" id="checkbox-m1-v1"></div>
+                        <span class="video-number">1</span>
+                        <span class="video-title">Customer Service vs Setting</span>
+                        <div class="video-links"><a href="https://www.veed.io/view/c71c8149-d920-4c19-96fd-60a31da29f9d" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                    <li class="video-item" id="video-m1-2">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m1-v2')" id="checkbox-m1-v2"></div>
+                        <span class="video-number">2</span>
+                        <span class="video-title">The 2 Funnels</span>
+                        <div class="video-links"><a href="https://www.veed.io/view/d0f646cf-d16b-49af-84ae-7fb416c2ac78" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                </ul>
+                <div class="achievement-badge" id="achievement-module1">🏆 Module 1 Complete!</div>
+                <div class="slack-reminder">
+                    <span class="slack-icon">💬</span>
+                    <div>
+                        <h4>Post to Slack after completing this module</h4>
+                        <p>Share <strong>3 key takeaways</strong> and <strong>1 question</strong> in <code>#setter-training</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 2 -->
+            <div class="module-card">
+                <div class="module-header">
+                    <span class="module-badge">Module 2</span>
+                    <span class="module-progress"><span id="module2-progress">0</span>/3 videos</span>
+                </div>
+                <h3 class="module-title">Positioning</h3>
+                <ul class="video-list">
+                    <li class="video-item" id="video-m2-1">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m2-v1')" id="checkbox-m2-v1"></div>
+                        <span class="video-number">1</span>
+                        <span class="video-title">Leads have to be excited</span>
+                        <div class="video-links"><a href="https://www.veed.io/view/3d3bc3bb-bad7-47be-9dae-0a7a6a8de54a" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                    <li class="video-item" id="video-m2-2">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m2-v2')" id="checkbox-m2-v2"></div>
+                        <span class="video-number">2</span>
+                        <span class="video-title">Authority trick</span>
+                        <div class="video-links"><a href="https://www.veed.io/view/3ae28635-b3d1-4047-a5ee-99be322b51ef" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                    <li class="video-item" id="video-m2-3">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m2-v3')" id="checkbox-m2-v3"></div>
+                        <span class="video-number">3</span>
+                        <span class="video-title">Never sound salesy</span>
+                        <div class="video-links"><a href="https://www.veed.io/view/5dfe6204-5740-49a0-9b6a-6a8ea3f6428d" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                </ul>
+                <div class="achievement-badge" id="achievement-module2">🏆 Module 2 Complete!</div>
+                <div class="slack-reminder">
+                    <span class="slack-icon">💬</span>
+                    <div>
+                        <h4>Post to Slack after completing this module</h4>
+                        <p>Share <strong>3 key takeaways</strong> and <strong>1 question</strong> in <code>#setter-training</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module 3 -->
+            <div class="module-card">
+                <div class="module-header">
+                    <span class="module-badge">Module 3</span>
+                    <span class="module-progress"><span id="module3-progress">0</span>/4 videos</span>
+                </div>
+                <h3 class="module-title">Sales Mindset</h3>
+                <ul class="video-list">
+                    <li class="video-item" id="video-m3-1">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m3-v1')" id="checkbox-m3-v1"></div>
+                        <span class="video-number">1</span>
+                        <span class="video-title">Intro</span>
+                        <div class="video-links"><a href="https://www.youtube.com/watch?v=mflRSbyKH-o" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                    <li class="video-item" id="video-m3-2">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m3-v2')" id="checkbox-m3-v2"></div>
+                        <span class="video-number">2</span>
+                        <span class="video-title">Extreme Ownership</span>
+                        <div class="video-links">
+                            <a href="https://www.youtube.com/watch?v=ljqra3BcqWM" target="_blank" class="video-link">▶️ Part 1</a>
+                            <a href="https://www.youtube.com/watch?v=2rP_cdPjiQU" target="_blank" class="video-link">▶️ Part 2</a>
+                        </div>
+                    </li>
+                    <li class="video-item" id="video-m3-3">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m3-v3')" id="checkbox-m3-v3"></div>
+                        <span class="video-number">3</span>
+                        <span class="video-title">What the greats do</span>
+                        <div class="video-links"><a href="https://www.youtube.com/watch?v=SPFaRlgP41o" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                    <li class="video-item" id="video-m3-4">
+                        <div class="custom-checkbox" onclick="toggleCheckbox('m3-v4')" id="checkbox-m3-v4"></div>
+                        <span class="video-number">4</span>
+                        <span class="video-title">Haal je bonus</span>
+                        <div class="video-links"><a href="https://www.youtube.com/watch?v=j9X4XBn5YB8" target="_blank" class="video-link">▶️ Watch</a></div>
+                    </li>
+                </ul>
+                <div class="achievement-badge" id="achievement-module3">🏆 Module 3 Complete!</div>
+                <div class="slack-reminder">
+                    <span class="slack-icon">💬</span>
+                    <div>
+                        <h4>Post to Slack after completing this module</h4>
+                        <p>Share <strong>3 key takeaways</strong> and <strong>1 question</strong> in <code>#setter-training</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Library Header -->
+            <div class="library-header">
+                <h2>📚 Training Library</h2>
+                <p>Deep-Dive Lessons • Click to expand</p>
+            </div>
+
+            <p class="library-intro">These lessons cover everything you need to become a top-performing setter. Read each one carefully, then check the box when you've truly absorbed it.</p>
+
+            <!-- Category 1: Mindset & Discipline -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🧠</span>
+                    <h3 class="category-title">Mindset & Discipline</h3>
+                    <span class="category-count" id="cat1-count">0/7</span>
+                </div>
+
+                <!-- Lesson 1: Performance Hacks -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l1')" id="checkbox-cat1-l1"></div>
+                        </div>
+                        <span class="toggle-number">1</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Performance Hacks <span class="read-time">4 min</span></div>
+                            <div class="toggle-subtitle">Optimize your daily routine</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>If you want to outperform 90% of setters, it starts before you even open your laptop. Your performance as a setter is directly tied to how you treat your body and mind outside of work hours.</p>
+                            <p><strong>Morning routine matters.</strong> The first hour of your day sets the tone for everything. Wake up at a consistent time. Move your body before you check your phone. Cold exposure (cold shower or ice bath) activates your nervous system and builds mental resilience. Eat clean, whole foods that give you sustained energy rather than sugar crashes.</p>
+                            <p>Most setters don't have a skill problem. They have an energy problem. They're trying to perform at a high level while running on 5 hours of sleep, processed food, and no exercise. That's like trying to win a race with flat tires.</p>
+                            <ul>
+                                <li><strong>Sleep:</strong> 7-8 hours minimum. Non-negotiable. Your brain consolidates learning during sleep.</li>
+                                <li><strong>Movement:</strong> 30 minutes daily. Walk, gym, whatever. Just move.</li>
+                                <li><strong>Nutrition:</strong> Protein, vegetables, complex carbs. Avoid sugar and processed foods during work hours.</li>
+                                <li><strong>Hydration:</strong> 3+ liters of water daily. Dehydration kills focus.</li>
+                            </ul>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Tomorrow morning, set your alarm 30 minutes earlier. Use that time for movement and a cold shower. Track how your energy levels differ throughout the day.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 2: Focus on Input -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l2')" id="checkbox-cat1-l2"></div>
+                        </div>
+                        <span class="toggle-number">2</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Focus on Input <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">Control what you can control</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>Here's one truth that will change everything: <strong>you cannot control outcomes, but you can control inputs.</strong></p>
+                            <p>Most setters obsess over output KPIs: calls booked, show rates, close rates. But you don't control whether someone shows up. You don't control whether they buy. What you DO control is the work you put in to make those things more likely.</p>
+                            <p>The setters who dominate track their inputs religiously:</p>
+                            <ul>
+                                <li><strong>Messages sent:</strong> Are you hitting your daily volume?</li>
+                                <li><strong>Response time:</strong> How fast do you reply to new leads?</li>
+                                <li><strong>Follow-up consistency:</strong> Are you following up 5-7 times on every lead?</li>
+                                <li><strong>Quality of questions:</strong> Are your questions getting people to open up?</li>
+                            </ul>
+                            <p>When you focus on inputs, you remove emotion from the equation. A lead ghosts you? Doesn't matter. You controlled what you could control. Now move on to the next one.</p>
+                            <p>This mindset also makes you coachable. When a manager says "your book rate is low," you can look at your inputs and identify exactly where to improve. Maybe your response time is slow. Maybe your follow-ups are weak. The data tells you.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Create a daily tracker with these columns: Messages sent, Average response time, Follow-ups sent, Questions asked per convo. Fill it out for one week before analyzing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 3: Leadership & Growth -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l3')" id="checkbox-cat1-l3"></div>
+                        </div>
+                        <span class="toggle-number">3</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Leadership & Growth <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">Where this role can take you</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>This isn't just about being a good setter. It's about leadership and where this role can take you.</p>
+                            <p>The career path looks like this: <strong>Setter → Senior Setter → Closer → Team Lead → Sales Manager.</strong> Each step multiplies your income and impact. But here's what most people miss: the skills you build as a setter are the foundation for everything above.</p>
+                            <p>As a setter, you're learning:</p>
+                            <ul>
+                                <li><strong>Communication:</strong> How to connect with strangers and build rapport fast</li>
+                                <li><strong>Psychology:</strong> What motivates people, what holds them back</li>
+                                <li><strong>Resilience:</strong> How to handle rejection and keep pushing</li>
+                                <li><strong>Systems:</strong> How to manage volume and stay organized</li>
+                            </ul>
+                            <p>These skills compound. A great setter who learns to close becomes a dangerous closer. A closer who can lead becomes an unstoppable manager. But it all starts here, with mastering the fundamentals.</p>
+                            <p>Think bigger than your current role. Every conversation you have is practice for the leader you're becoming. Every rejection you handle builds the resilience you'll need to manage a team. Every system you create now will scale with you.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Write down where you want to be in 12 months. What role? What income? Now work backwards: what skills do you need to develop in the next 90 days to get there?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 4: Get Everything Out -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l4')" id="checkbox-cat1-l4"></div>
+                        </div>
+                        <span class="toggle-number">4</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Get Everything Out <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">Leave nothing on the table</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>One of the fastest ways to tell if someone will succeed as a setter is this: <strong>do they leave energy on the table, or do they empty the tank every day?</strong></p>
+                            <p>There's a difference between being busy and being productive. Some setters look busy all day but finish with energy left over. They held back. They could have sent 20 more messages, made 10 more follow-ups, stayed 30 more minutes. But they didn't.</p>
+                            <p>Top performers end each day knowing there was nothing left to give. They sent every message. They followed up on every lead. They squeezed every ounce of value from their time. Not because someone was watching, but because that's who they are.</p>
+                            <p>This isn't about burning out. It's about being intentional with your energy. If you have 4 hours of peak focus time, use all 4 hours. Don't waste an hour scrolling or chatting. Save that for after you've emptied the tank.</p>
+                            <p>Ask yourself at the end of each day: <strong>"Did I leave anything on the table?"</strong> If the answer is yes, you know what to fix tomorrow.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Set a "shutdown complete" time each day. Before you close your laptop, ask: "Did I give everything I had today?" Journal your honest answer for 7 days.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 5: Weekly Feedback -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l5')" id="checkbox-cat1-l5"></div>
+                        </div>
+                        <span class="toggle-number">5</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Weekly Feedback <span class="read-time">2 min</span></div>
+                            <div class="toggle-subtitle">How to actually improve</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>Here's the real difference between setters who earn €10k months and those stuck under €3k: <strong>feedback loops.</strong></p>
+                            <p>Most setters practice. Few setters practice with feedback. There's a massive difference. You can practice the wrong thing for years and never improve. But one piece of targeted feedback can transform your results overnight.</p>
+                            <p>Every week, submit your best and worst conversation for review. Not your average ones. Your best and your worst. Here's why:</p>
+                            <ul>
+                                <li><strong>Your best:</strong> Shows what you're capable of. A coach can help you make this your new baseline.</li>
+                                <li><strong>Your worst:</strong> Shows your biggest blind spots. This is where the fastest improvements come from.</li>
+                            </ul>
+                            <p>Don't be embarrassed about your worst. Everyone has bad conversations. The difference is whether you learn from them or repeat them.</p>
+                            <p>When you get feedback, implement it immediately. Not tomorrow. Not next week. The same day. Repetition creates habit. If you wait, you'll forget.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Schedule a recurring weekly reminder to submit your best and worst convo. Put it in your calendar right now.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 6: Discipline -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l6')" id="checkbox-cat1-l6"></div>
+                        </div>
+                        <span class="toggle-number">6</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Discipline <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">The foundation of everything</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>Here's what's going to happen in your first weeks of setting: <strong>you'll be motivated.</strong> Everything is new and exciting. You'll crush your targets.</p>
+                            <p>Then week 3 or 4 hits. The novelty wears off. You get a string of rejections. Your motivation dips. This is where most setters start to fade.</p>
+                            <p>The ones who succeed don't rely on motivation. They rely on discipline. Discipline is doing what you said you would do, long after the mood you said it in has passed.</p>
+                            <p>Discipline looks like:</p>
+                            <ul>
+                                <li>Showing up at the same time every day, whether you feel like it or not</li>
+                                <li>Hitting your daily message target, even on days when nothing seems to work</li>
+                                <li>Following up on leads even when you're tired</li>
+                                <li>Reviewing your conversations even when you'd rather be done for the day</li>
+                            </ul>
+                            <p>Motivation is a spark. Discipline is the fuel that keeps the fire burning. Build systems that don't depend on how you feel. Set non-negotiable daily minimums. Create accountability with a partner or manager.</p>
+                            <p>When discipline becomes habit, success becomes inevitable.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Define 3 non-negotiable daily minimums. These are actions you will complete every single day, no matter what. Write them down and commit.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 7: What You Put In -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat1-l7')" id="checkbox-cat1-l7"></div>
+                        </div>
+                        <span class="toggle-number">7</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">What You Put In = What You Get Out <span class="read-time">2 min</span></div>
+                            <div class="toggle-subtitle">The universal law</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>What you put in is what you get out. <strong>Period.</strong></p>
+                            <p>There are no shortcuts in setting. No magic scripts. No secret hacks that let you succeed without doing the work. The setters who win are the ones who do more reps than everyone else.</p>
+                            <p>Think about any skill you've mastered. Riding a bike. Playing an instrument. A sport. You got good because you practiced. A lot. Setting is no different.</p>
+                            <p>Every message you send is a rep. Every conversation is a rep. Every rejection is a rep. More reps equals more skill. It's that simple.</p>
+                            <p>Some people look for efficiency hacks before they've put in the volume. They want to optimize a process they haven't even learned yet. Don't be that person. First, do the reps. Then optimize.</p>
+                            <p>The person who sends 200 messages a day will always beat the person who sends 50, assuming equal skill. And the person who sends 200 messages will develop skill faster because they're getting 4x the practice.</p>
+                            <p>Volume solves most problems. When in doubt, do more.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Calculate how many conversations you've had in the last month. Now set a goal to increase that by 50% over the next 30 days. More reps, more skill.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-badge" id="achievement-cat1">🧠 Mindset Mastered!</div>
+            </div>
+
+            <!-- Category 2: Execution & Speed -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">⚡</span>
+                    <h3 class="category-title">Execution & Speed</h3>
+                    <span class="category-count" id="cat2-count">0/4</span>
+                </div>
+
+                <!-- Lesson 1: Speed to Lead -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat2-l1')" id="checkbox-cat2-l1"></div>
+                        </div>
+                        <span class="toggle-number">1</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Speed to Lead <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">Why the first 5 minutes matter</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>This is about one thing that separates top setters from average ones: <strong>speed to lead.</strong></p>
+                            <p>Leads contacted within 5 minutes are 21x more likely to qualify than leads contacted after 30 minutes. This isn't opinion. It's data from millions of sales interactions.</p>
+                            <p>Why? Because when someone fills out a form or sends a DM, they're in a buying mood right now. They're curious. They're engaged. Their phone is in their hand. Five minutes later? They've moved on. They're scrolling Instagram. They've forgotten why they reached out.</p>
+                            <p>Your goal is to be the first person they talk to while they're still in that state. Every minute you wait, the lead cools down.</p>
+                            <p>Set up notifications so you know the moment a new lead comes in. Have templates ready so you can respond immediately. Treat new leads like they're on fire, because they are.</p>
+                            <p>The first response doesn't need to be perfect. It needs to be fast. A quick "Hey, just saw your message, I'll get back to you in 5 minutes with more details" is better than a perfect response 30 minutes later.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Set up mobile notifications for new leads. Create a quick-response template you can send within 60 seconds. Test it today.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 2: Volume -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat2-l2')" id="checkbox-cat2-l2"></div>
+                        </div>
+                        <span class="toggle-number">2</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Volume <span class="read-time">2 min</span></div>
+                            <div class="toggle-subtitle">The multiplier for everything</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>Let's talk about the most underrated factor in setting success: <strong>volume.</strong></p>
+                            <p>If you're not hitting your targets, the first question is always: "Am I doing enough reps?" Not "Is my script good?" Not "Are the leads quality?" First: volume.</p>
+                            <p>Here's the math. Let's say you convert 5% of conversations to booked calls. If you have 20 conversations, that's 1 call. If you have 100 conversations, that's 5 calls. Same skill level. 5x the results. Volume is the multiplier.</p>
+                            <p>Most setters underestimate how much volume top performers actually do. They think their one extra hour of work is a lot. But the top setter is doing 3 extra hours. The gap compounds over time.</p>
+                            <p>Volume also accelerates learning. 100 conversations teaches you more than 20 conversations. You see more patterns. You get more feedback. You adapt faster.</p>
+                            <p>Before you optimize anything else, max out your volume. Once you're at capacity, then start optimizing for conversion rate.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Track your daily conversation count for one week. Calculate your average. Then set a goal to increase it by 25% the following week. Measure the impact on your results.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 3: Speed vs Quality -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat2-l3')" id="checkbox-cat2-l3"></div>
+                        </div>
+                        <span class="toggle-number">3</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">Speed vs Quality <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">Finding the right balance</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>Picture this: A lead replies to your message. You have two options.</p>
+                            <p><strong>Option A:</strong> Spend 10 minutes crafting the perfect response. Consider every word. Make it flawless.</p>
+                            <p><strong>Option B:</strong> Send a good response in 60 seconds. Not perfect, but solid.</p>
+                            <p>Which wins? Option B. Almost every time.</p>
+                            <p>Here's why: A fast 80% message beats a slow 100% message. The lead is still engaged. The conversation has momentum. You're demonstrating responsiveness and energy.</p>
+                            <p>Perfectionism is the enemy of setting. While you're polishing one message, you could have sent three. While you're overthinking one conversation, another lead went cold.</p>
+                            <p>This doesn't mean quality doesn't matter. It means you need to develop the skill of sending high-quality messages fast. That comes from practice. The more reps you do, the faster quality becomes automatic.</p>
+                            <p>Speed creates pressure on the lead (in a good way). When someone replies in 2 minutes, the lead feels important. When someone replies in 2 hours, the lead feels like one of many. Speed is a positioning tool.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Time yourself on your next 10 responses. Are you averaging 2 minutes or 10? Challenge yourself to cut your average response time in half without sacrificing quality.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lesson 4: Power of Focus -->
+                <div class="toggle-card">
+                    <div class="toggle-header" onclick="toggleCard(this)">
+                        <div class="toggle-checkbox" onclick="event.stopPropagation()">
+                            <div class="custom-checkbox" onclick="toggleCheckbox('cat2-l4')" id="checkbox-cat2-l4"></div>
+                        </div>
+                        <span class="toggle-number">4</span>
+                        <div class="toggle-info">
+                            <div class="toggle-title">The Power of Focus <span class="read-time">3 min</span></div>
+                            <div class="toggle-subtitle">Deep work for setters</div>
+                        </div>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="toggle-content">
+                        <div class="content-body">
+                            <p>If you want to win as a setter, you need to understand this: <strong>90 minutes of focused work beats 4 hours of distracted work.</strong></p>
+                            <p>Most setters work with constant interruptions. Checking Instagram. Responding to personal messages. Getting pulled into random tasks. They're "working" for 8 hours but actually focused for maybe 2.</p>
+                            <p>Top performers do the opposite. They create blocks of deep focus time where nothing exists except their leads. Phone on airplane mode. Notifications off. Full presence.</p>
+                            <p>During these focus blocks, you'll be amazed at what you accomplish. Messages flow faster. Conversations are better. You enter a state where everything clicks.</p>
+                            <p>Structure your day around focus blocks:</p>
+                            <ul>
+                                <li><strong>Morning block (90 min):</strong> New lead outreach when your energy is highest</li>
+                                <li><strong>Midday block (60 min):</strong> Follow-ups and ongoing conversations</li>
+                                <li><strong>Afternoon block (90 min):</strong> Second wave of outreach and closing conversations</li>
+                            </ul>
+                            <p>Between blocks, take real breaks. Walk around. Get fresh air. Then come back ready to focus again.</p>
+                            <div class="action-box">
+                                <h4>🎯 Action Step</h4>
+                                <p>Schedule 3 focus blocks in your calendar tomorrow. Set your phone to Do Not Disturb during each block. Notice the difference in output and quality.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievement-badge" id="achievement-cat2">⚡ Execution Mastered!</div>
+            </div>
+
+            <!-- Category 3, 4, 5 - Placeholders for now -->
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">💬</span>
+                    <h3 class="category-title">Conversation Frameworks</h3>
+                    <span class="category-count" id="cat3-count">0/8</span>
+                </div>
+                <p style="color: rgba(255,255,255,0.5); padding: 20px; text-align: center;">Full lessons coming soon. For now, reference the Setter Framework documents in the Tools section below.</p>
+                <div class="achievement-badge" id="achievement-cat3">💬 Frameworks Mastered!</div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🔄</span>
+                    <h3 class="category-title">Follow-Ups</h3>
+                    <span class="category-count" id="cat4-count">0/7</span>
+                </div>
+                <p style="color: rgba(255,255,255,0.5); padding: 20px; text-align: center;">Full lessons coming soon. For now, reference the Setter Framework documents in the Tools section below.</p>
+                <div class="achievement-badge" id="achievement-cat4">🔄 Follow-Ups Mastered!</div>
+            </div>
+
+            <div class="category-section">
+                <div class="category-header">
+                    <span class="category-icon">🎯</span>
+                    <h3 class="category-title">Mindset In Chats</h3>
+                    <span class="category-count" id="cat5-count">0/4</span>
+                </div>
+                <p style="color: rgba(255,255,255,0.5); padding: 20px; text-align: center;">Full lessons coming soon. For now, reference the Setter Framework documents in the Tools section below.</p>
+                <div class="achievement-badge" id="achievement-cat5">🎯 Chat Mindset Mastered!</div>
+            </div>
+
+            <!-- Examples of Good Chats -->
+            <div class="examples-section">
+                <h3>📝 Examples of Good Chats</h3>
+                <div class="examples-grid">
+                    <div class="example-card">
+                        <h4>Template Conversations</h4>
+                        <p>Real examples from top setters showing what works</p>
+                        <a href="https://docs.google.com/document/d/1/edit" target="_blank">View Examples →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools & Links -->
+            <div class="section-header">
+                <span class="section-icon">🛠️</span>
+                <h2 class="section-title">Tools & Links</h2>
+            </div>
+
+            <div class="tools-grid">
+                <a href="https://cotton-skate-540.notion.site/TESTIMONIAL-VAULT-DROPSHIP-ACADEMY-1d530c239f5d8021a1f8ca6bb645f965" target="_blank" class="tool-card">
+                    <div class="tool-icon">🏆</div>
+                    <h4>Testimonial Vault</h4>
+                    <p>Success stories & social proof</p>
+                </a>
+                <a href="https://chatgpt.com/g/g-68c54e99b5fc81919ee7a3acaaf6eb9e-dropship-academy-setter-training-bot" target="_blank" class="tool-card">
+                    <div class="tool-icon">🤖</div>
+                    <h4>ChatGPT Setter Bot</h4>
+                    <p>AI roleplay & practice</p>
+                </a>
+                <a href="https://www.notion.so/Master-Setter-Framework-v2-3023117905e9816b8de0eef8604c5426" target="_blank" class="tool-card">
+                    <div class="tool-icon">📋</div>
+                    <h4>Setter Framework (DMs)</h4>
+                    <p>The complete DM system</p>
+                </a>
+                <a href="https://cotton-skate-540.notion.site/Webinar-Lead-Call-Framework-28630c239f5d80259a8bc6f83157dbff" target="_blank" class="tool-card">
+                    <div class="tool-icon">📞</div>
+                    <h4>Setter Framework (Calls)</h4>
+                    <p>Webinar lead call system</p>
+                </a>
+            </div>
+
+            <!-- Bootcamp -->
+            <div class="bootcamp-banner">
+                <h3>🎯 Weekly Bootcamp</h3>
+                <p>Live roleplay, Q&A, and training every week</p>
+                <a href="https://us02web.zoom.us/j/89091186587?pwd=gCajbeEe6GDkYOC5E12Z0JRNnJNzwk.1" target="_blank">Join Bootcamp →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyEfkdXkvBZm2BkFsrfGoQoW9GdhNAGSFV-NfHtocfeYYOQLJpCdOa-WkQCiry3gM0e/exec';
+
+        // All checkboxes - currently only counting actual implemented lessons
+        const ALL_CHECKBOXES = [
+            'onboarding',
+            'm1-v1', 'm1-v2',
+            'm2-v1', 'm2-v2', 'm2-v3',
+            'm3-v1', 'm3-v2', 'm3-v3', 'm3-v4',
+            'cat1-l1', 'cat1-l2', 'cat1-l3', 'cat1-l4', 'cat1-l5', 'cat1-l6', 'cat1-l7',
+            'cat2-l1', 'cat2-l2', 'cat2-l3', 'cat2-l4'
+        ];
+        const TOTAL_ITEMS = ALL_CHECKBOXES.length;
+
+        // State
+        let currentUser = null;
+        let progress = {};
+        let syncTimeout = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('totalCount').textContent = TOTAL_ITEMS;
+            checkExistingSession();
+        });
+
+        function checkExistingSession() {
+            const savedUsers = Object.keys(localStorage).filter(k => k.startsWith('dsa_setter_'));
+            if (savedUsers.length > 0) {
+                const lastUser = localStorage.getItem('dsa_setter_last_user');
+                if (lastUser) {
+                    const [firstName, lastName] = lastUser.split('_');
+                    loginUser(firstName, lastName);
+                    return;
+                }
+            }
+            document.getElementById('loginGate').classList.remove('hidden');
+        }
+
+        function handleLogin() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            if (!firstName || !lastName) {
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
+            document.getElementById('loginError').style.display = 'none';
+            loginUser(firstName, lastName);
+        }
+
+        function loginUser(firstName, lastName) {
+            currentUser = { firstName, lastName, storageKey: `dsa_setter_${firstName.toLowerCase()}_${lastName.toLowerCase()}` };
+            localStorage.setItem('dsa_setter_last_user', `${firstName}_${lastName}`);
+            loadProgress();
+            document.getElementById('loginGate').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('visible');
+            document.getElementById('userName').textContent = `${firstName} ${lastName}`;
+            document.getElementById('userAvatar').textContent = firstName.charAt(0).toUpperCase() + lastName.charAt(0).toUpperCase();
+            syncToSheet();
+        }
+
+        function switchUser() {
+            currentUser = null;
+            progress = {};
+            localStorage.removeItem('dsa_setter_last_user');
+            document.getElementById('mainContent').classList.remove('visible');
+            document.getElementById('loginGate').classList.remove('hidden');
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            ALL_CHECKBOXES.forEach(id => {
+                const cb = document.getElementById(`checkbox-${id}`);
+                if (cb) { cb.classList.remove('checked'); }
+            });
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem(currentUser.storageKey);
+            if (saved) {
+                try { progress = JSON.parse(saved); } catch (e) { progress = {}; }
+            } else { progress = {}; }
+            ALL_CHECKBOXES.forEach(id => {
+                if (progress[id] !== true) { progress[id] = false; }
+            });
+            renderAllCheckboxes();
+            updateAllProgress();
+        }
+
+        function saveProgress() {
+            if (currentUser) { localStorage.setItem(currentUser.storageKey, JSON.stringify(progress)); }
+        }
+
+        function renderAllCheckboxes() {
+            ALL_CHECKBOXES.forEach(id => {
+                const cb = document.getElementById(`checkbox-${id}`);
+                if (cb) {
+                    cb.classList.remove('checked');
+                    if (progress[id] === true) { cb.classList.add('checked'); }
+                }
+            });
+        }
+
+        function renderCheckbox(id) {
+            const cb = document.getElementById(`checkbox-${id}`);
+            if (cb) {
+                cb.classList.remove('checked');
+                if (progress[id] === true) { cb.classList.add('checked'); }
+            }
+        }
+
+        function toggleCheckbox(id) {
+            progress[id] = progress[id] === true ? false : true;
+            renderCheckbox(id);
+            saveProgress();
+            updateAllProgress();
+            scheduleSyncToSheet();
+        }
+
+        function updateAllProgress() {
+            let completed = 0;
+            ALL_CHECKBOXES.forEach(id => { if (progress[id] === true) completed++; });
+            const percent = Math.round((completed / TOTAL_ITEMS) * 100);
+            document.getElementById('progressPercent').textContent = `${percent}%`;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            updateModuleProgress();
+            updateCategoryProgress();
+        }
+
+        function updateModuleProgress() {
+            const m1 = (progress['m1-v1'] === true ? 1 : 0) + (progress['m1-v2'] === true ? 1 : 0);
+            const m2 = (progress['m2-v1'] === true ? 1 : 0) + (progress['m2-v2'] === true ? 1 : 0) + (progress['m2-v3'] === true ? 1 : 0);
+            const m3 = (progress['m3-v1'] === true ? 1 : 0) + (progress['m3-v2'] === true ? 1 : 0) + (progress['m3-v3'] === true ? 1 : 0) + (progress['m3-v4'] === true ? 1 : 0);
+            document.getElementById('module1-progress').textContent = m1;
+            document.getElementById('module2-progress').textContent = m2;
+            document.getElementById('module3-progress').textContent = m3;
+            toggleAchievement('achievement-module1', m1 === 2);
+            toggleAchievement('achievement-module2', m2 === 3);
+            toggleAchievement('achievement-module3', m3 === 4);
+        }
+
+        function updateCategoryProgress() {
+            const cats = [
+                { id: 'cat1', items: ['cat1-l1','cat1-l2','cat1-l3','cat1-l4','cat1-l5','cat1-l6','cat1-l7'] },
+                { id: 'cat2', items: ['cat2-l1','cat2-l2','cat2-l3','cat2-l4'] }
+            ];
+            cats.forEach(cat => {
+                let done = 0;
+                cat.items.forEach(item => { if (progress[item] === true) done++; });
+                const countEl = document.getElementById(`${cat.id}-count`);
+                if (countEl) countEl.textContent = `${done}/${cat.items.length}`;
+                toggleAchievement(`achievement-${cat.id}`, done === cat.items.length);
+            });
+        }
+
+        function toggleAchievement(id, show) {
+            const el = document.getElementById(id);
+            if (el) { el.classList.toggle('visible', show); }
+        }
+
+        function toggleCard(header) {
+            const card = header.closest('.toggle-card');
+            card.classList.toggle('open');
+        }
+
+        // Sync to Google Sheets
+        function scheduleSyncToSheet() {
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(syncToSheet, 2000);
+        }
+
+        async function syncToSheet() {
+            if (!currentUser) return;
+            const syncEl = document.getElementById('syncStatus');
+            syncEl.textContent = 'Syncing...';
+            syncEl.className = 'sync-status syncing';
+            let completed = 0;
+            ALL_CHECKBOXES.forEach(id => { if (progress[id] === true) completed++; });
+            const percent = Math.round((completed / TOTAL_ITEMS) * 100);
+            const data = {
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+                email: '',
+                progressPercent: percent,
+                completedItems: completed,
+                totalItems: TOTAL_ITEMS,
+                rawProgress: JSON.stringify(progress)
+            };
+            try {
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                syncEl.textContent = 'Progress synced ✓';
+                syncEl.className = 'sync-status synced';
+                setTimeout(() => { syncEl.textContent = ''; }, 3000);
+            } catch (e) {
+                console.error('Sync failed:', e);
+                syncEl.textContent = '';
+                syncEl.className = 'sync-status';
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.getElementById('loginGate').contains(document.activeElement)) {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
